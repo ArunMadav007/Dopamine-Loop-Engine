@@ -1,0 +1,78 @@
+{
+  "q_table": {
+    "low_responsive": {
+      "grayscale": 0.7,
+      "delay": 0.2,
+      "awareness_popup": 0.7,
+      "blur_screen": 0.2,
+      "forced_break": 0.2,
+      "opportunity_cost": 0.2
+    },
+    "low_neutral": {
+      "grayscale": 0.6,
+      "delay": 0.2,
+      "awareness_popup": 0.6,
+      "blur_screen": 0.2,
+      "forced_break": 0.2,
+      "opportunity_cost": 0.2
+    },
+    "low_resistant": {
+      "grayscale": 0.6,
+      "delay": 0.2,
+      "awareness_popup": 0.6,
+      "blur_screen": 0.30000000000000004,
+      "forced_break": 0.30000000000000004,
+      "opportunity_cost": 0.2
+    },
+    "medium_responsive": {
+      "grayscale": 0.4,
+      "delay": 0.7,
+      "awareness_popup": 1.3383826255108,
+      "blur_screen": 0.646592428,
+      "forced_break": 0.3,
+      "opportunity_cost": 0.3
+    },
+    "medium_neutral": {
+      "grayscale": 0.3,
+      "delay": 0.593,
+      "awareness_popup": 0.7929999999999999,
+      "blur_screen": 0.5,
+      "forced_break": 0.3,
+      "opportunity_cost": 0.3
+    },
+    "medium_resistant": {
+      "grayscale": 0.3,
+      "delay": 0.7929999999999999,
+      "awareness_popup": 0.7,
+      "blur_screen": 0.6,
+      "forced_break": 0.4,
+      "opportunity_cost": 0.3
+    },
+    "high_responsive": {
+      "grayscale": 0.5,
+      "delay": 0.6,
+      "awareness_popup": 0.5,
+      "blur_screen": 0.8,
+      "forced_break": 0.8,
+      "opportunity_cost": 0.4
+    },
+    "high_neutral": {
+      "grayscale": 0.4,
+      "delay": 0.6,
+      "awareness_popup": 0.4,
+      "blur_screen": 0.8,
+      "forced_break": 0.8,
+      "opportunity_cost": 0.4
+    },
+    "high_resistant": {
+      "grayscale": 0.4,
+      "delay": 0.6,
+      "awareness_popup": 0.4,
+      "blur_screen": 0.9,
+      "forced_break": 0.9,
+      "opportunity_cost": 0.4
+    }
+  },
+  "epsilon": 0.14266651956986576,
+  "history_count": 10
+}

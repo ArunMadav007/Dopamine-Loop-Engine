@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="AI-powered anti-addiction system that detects and disrupts dopamine loops in real-time">
+    <meta name="theme-color" content="#00f0ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>DLDE — Dopamine Loop Disruption Engine</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- ═══════════ INTERVENTION OVERLAYS ═══════════ -->
+    <div id="intervention-overlay" class="intervention-overlay hidden">
+        <div id="intervention-content" class="intervention-content"></div>
+    </div>
+
+    <!-- ═══════════ MAIN APP SHELL ═══════════ -->
+    <div id="app" class="app-container">
+        
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 40 40" width="32" height="32">
+                        <circle cx="20" cy="20" r="18" fill="none" stroke="url(#logoGrad)" stroke-width="2"/>
+                        <path d="M20 8 C14 8, 10 14, 10 20 C10 26, 14 32, 20 32 C26 32, 30 26, 30 20 C30 14, 26 8, 20 8 Z M16 18 Q20 12, 24 18 M16 24 Q20 18, 24 24" fill="none" stroke="url(#logoGrad)" stroke-width="1.5" stroke-linecap="round"/>
+                        <circle cx="20" cy="20" r="3" fill="#00f0ff" opacity="0.8">
+                            <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                        <defs>
+                            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00f0ff"/>
+                                <stop offset="100%" stop-color="#bf00ff"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="header-title">
+                    <h1>DLDE</h1>
+                    <span class="header-subtitle">Dopamine Loop Disruption Engine</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div id="connection-status" class="connection-dot disconnected" title="Disconnected"></div>
+                <button id="btn-settings" class="icon-btn" title="Settings" aria-label="Settings">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- PAGES -->
+        <main id="main-content" class="main-content">
+
+            <!-- ══════ DASHBOARD PAGE ══════ -->
+            <section id="page-dashboard" class="page active">
+                <div class="page-scroll">
+                    
+                    <!-- Risk Score Gauge -->
+                    <div class="card card-hero glass">
+                        <div class="risk-gauge-container">
+                            <svg id="risk-gauge" viewBox="0 0 200 120" class="risk-gauge">
+                                <!-- Background arc -->
+                                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12" stroke-linecap="round"/>
+                                <!-- Value arc -->
+                                <path id="risk-arc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gaugeGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="251"/>
+                                <!-- Glow filter -->
+                                <defs>
+                                    <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop id="gauge-stop-1" offset="0%" stop-color="#00ff88"/>
+                                        <stop id="gauge-stop-2" offset="50%" stop-color="#ffaa00"/>
+                                        <stop id="gauge-stop-3" offset="100%" stop-color="#ff0044"/>
+                                    </linearGradient>
+                                    <filter id="glow">
+                                        <feGaussianBlur stdDeviation="3" result="blur"/>
+                                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                                    </filter>
+                                </defs>
+                            </svg>
+                            <div class="risk-score-display">
+                                <span id="risk-score-value" class="risk-score-number">0</span>
+                                <span class="risk-score-label">RISK SCORE</span>
+                            </div>
+                        </div>
+                        <div id="risk-zone-badge" class="risk-zone-badge safe">
+                            <span class="zone-dot"></span>
+                            <span id="risk-zone-text">SAFE</span>
+                        </div>
+                        <div id="risk-state" class="risk-state">
+                            <span class="state-label">AI State:</span>
+                            <span id="ai-state-text" class="state-value">NORMAL</span>
+                            <span class="state-label">Confidence:</span>
+                            <span id="ai-confidence" class="state-value">—</span>
+                        </div>
+                        <div id="hero-time-wasted" style="
+                            margin-top: 20px;
+                            padding: 15px;
+                            background: rgba(255, 0, 68, 0.1);
+                            border: 1px solid rgba(255, 0, 68, 0.3);
+                            border-radius: 12px;
+                            text-align: center;
+                            font-family: 'Inter', sans-serif;
+                            display: none;
+                        ">
+                            <div style="font-size: 14px; color: #ffaa00; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Time Wasted</div>
+                            <div id="hero-time-number" style="font-size: 32px; font-weight: 900; color: #ff0044; text-shadow: 0 0 10px rgba(255,0,68,0.5);">0 MIN</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="stats-grid">
+                        <div class="card stat-card glass">
+                            <div class="stat-icon" style="--accent: #00f0ff;">
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span id="stat-session-time" class="stat-value">0m</span>
+                                <span class="stat-label">Session Time</span>
+                            </div>
+                        </div>
+                        <div class="card stat-card glass">
+                            <div class="stat-icon" style="--accent: #bf00ff;">
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span id="stat-interventions" class="stat-value">0</span>
+                                <span class="stat-label">Interventions</span>
+                            </div>
+                        </div>
+                        <div class="card stat-card glass">
+                            <div class="stat-icon" style="--accent: #00ff88;">
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span id="stat-readings" class="stat-value">0</span>
+                                <span class="stat-label">Readings</span>
+                            </div>
+                        </div>
+                        <div class="card stat-card glass">
+                            <div class="stat-icon" style="--accent: #ffaa00;">
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span id="stat-responsiveness" class="stat-value">—</span>
+                                <span class="stat-label">Response Mode</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Score History Chart -->
+                    <div class="card glass">
+                        <h3 class="card-title">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#00f0ff" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                            Risk Score Timeline
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="chart-risk-history" width="600" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Component Breakdown -->
+                    <div class="card glass">
+                        <h3 class="card-title">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#bf00ff" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                            Risk Components
+                        </h3>
+                        <div id="risk-components" class="risk-components">
+                            <div class="component-bar">
+                                <span class="comp-label">Scroll Speed</span>
+                                <div class="comp-track"><div id="comp-scroll" class="comp-fill" style="width: 0%"></div></div>
+                                <span id="comp-scroll-val" class="comp-val">0%</span>
+                            </div>
+                            <div class="component-bar">
+                                <span class="comp-label">Session Duration</span>
+                                <div class="comp-track"><div id="comp-session" class="comp-fill" style="width: 0%"></div></div>
+                                <span id="comp-session-val" class="comp-val">0%</span>
+                            </div>
+                            <div class="component-bar">
+                                <span class="comp-label">Click Rate</span>
+                                <div class="comp-track"><div id="comp-clicks" class="comp-fill" style="width: 0%"></div></div>
+                                <span id="comp-clicks-val" class="comp-val">0%</span>
+                            </div>
+                            <div class="component-bar">
+                                <span class="comp-label">Time Factor</span>
+                                <div class="comp-track"><div id="comp-time" class="comp-fill" style="width: 0%"></div></div>
+                                <span id="comp-time-val" class="comp-val">0%</span>
+                            </div>
+                            <div class="component-bar">
+                                <span class="comp-label">Pause Inverse</span>
+                                <div class="comp-track"><div id="comp-pause" class="comp-fill" style="width: 0%"></div></div>
+                                <span id="comp-pause-val" class="comp-val">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RL Agent Info -->
+                    <div class="card glass">
+                        <h3 class="card-title">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#00ff88" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
+                            RL Agent Status
+                        </h3>
+                        <div class="rl-stats">
+                            <div class="rl-stat">
+                                <span class="rl-label">Exploration Rate (ε)</span>
+                                <span id="rl-epsilon" class="rl-value">0.15</span>
+                            </div>
+                            <div class="rl-stat">
+                                <span class="rl-label">Total Updates</span>
+                                <span id="rl-updates" class="rl-value">0</span>
+                            </div>
+                            <div class="rl-stat">
+                                <span class="rl-label">Avg Reward</span>
+                                <span id="rl-reward" class="rl-value">0</span>
+                            </div>
+                            <div class="rl-stat">
+                                <span class="rl-label">Last Action</span>
+                                <span id="rl-last-action" class="rl-value">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ══════ LIVE MONITOR PAGE ══════ -->
+            <section id="page-monitor" class="page">
+                <div class="page-scroll">
+                    
+                    <!-- Mode Selector -->
+                    <div class="card glass">
+                        <div class="monitor-mode-selector">
+                            <button id="btn-mode-simulate" class="mode-btn active" data-mode="simulate">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                Simulation
+                            </button>
+                            <button id="btn-mode-real" class="mode-btn" data-mode="real">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                                Real Tracking
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Status -->
+                    <div class="card card-live glass">
+                        <div class="live-indicator">
+                            <span id="live-dot" class="live-dot"></span>
+                            <span id="live-label" class="live-label">STOPPED</span>
+                        </div>
+                        <div id="live-risk-display" class="live-risk-display">
+                            <div class="live-risk-ring">
+                                <svg viewBox="0 0 120 120" width="120" height="120">
+                                    <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+                                    <circle id="live-ring" cx="60" cy="60" r="52" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327" transform="rotate(-90 60 60)"/>
+                                </svg>
+                                <span id="live-score" class="live-score-text">0</span>
+                            </div>
+                            <div class="live-meta">
+                                <div class="live-meta-item">
+                                    <span class="meta-label">State</span>
+                                    <span id="live-state" class="meta-value state-normal">NORMAL</span>
+                                </div>
+                                <div class="live-meta-item">
+                                    <span class="meta-label">Zone</span>
+                                    <span id="live-zone" class="meta-value">SAFE</span>
+                                </div>
+                                <div class="live-meta-item">
+                                    <span class="meta-label">Intervention</span>
+                                    <span id="live-intervention" class="meta-value">None</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="btn-start-monitor" class="btn btn-primary btn-glow">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            Start Monitoring
+                        </button>
+                    </div>
+
+                    <!-- Live Metrics Sparklines -->
+                    <div class="card glass">
+                        <h3 class="card-title">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#00f0ff" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                            Live Metrics
+                        </h3>
+                        <div class="live-metrics-grid">
+                            <div class="metric-card">
+                                <span class="metric-label">Scroll Speed</span>
+                                <span id="metric-scroll" class="metric-value">0 <small>px/s</small></span>
+                                <canvas id="spark-scroll" class="sparkline" width="120" height="40"></canvas>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Clicks/min</span>
+                                <span id="metric-clicks" class="metric-value">0</span>
+                                <canvas id="spark-clicks" class="sparkline" width="120" height="40"></canvas>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Session Time</span>
+                                <span id="metric-session" class="metric-value">0s</span>
+                                <canvas id="spark-session" class="sparkline" width="120" height="40"></canvas>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Pause Ratio</span>
+                                <span id="metric-pause" class="metric-value">0%</span>
+                                <canvas id="spark-pause" class="sparkline" width="120" height="40"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Simulated Content Feed (for real tracking mode) -->
+                    <div id="sim-feed-container" class="card glass hidden">
+                        <h3 class="card-title">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#bf00ff" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                            Simulated Content Feed — Scroll to test!
+                        </h3>
+                        <div id="sim-feed" class="sim-feed"></div>
+                    </div>
+
+                    <!-- Intervention Log -->
+                    <div class="card glass">
+                        <h3 class="card-title">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ffaa00" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            Intervention Log
+                        </h3>
+                        <div id="intervention-log" class="intervention-log">
+                            <div class="log-empty">No interventions yet. Start monitoring to begin.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ══════ HISTORY PAGE ══════ -->
+            <section id="page-history" class="page">
+                <div class="page-scroll">
+                    <div class="card glass">
+                        <h3 class="card-title">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#00f0ff" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            Session History
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="chart-session-history" width="600" height="250"></canvas>
+                        </div>
+                    </div>
+                    <div class="card glass">
+                        <h3 class="card-title">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#bf00ff" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Intervention Effectiveness
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="chart-effectiveness" width="600" height="250"></canvas>
+                        </div>
+                    </div>
+                    <div class="card glass">
+                        <h3 class="card-title">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#00ff88" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                            Q-Table Heatmap
+                        </h3>
+                        <div id="q-table-display" class="q-table-display">
+                            <p class="text-muted">Connect to backend to view Q-table data.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ══════ SETTINGS PAGE ══════ -->
+            <section id="page-settings" class="page">
+                <div class="page-scroll">
+                    <div class="card glass">
+                        <h3 class="card-title">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#00f0ff" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                            Engine Settings
+                        </h3>
+                        <div class="settings-group">
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <span class="setting-name">Monitoring Interval</span>
+                                    <span class="setting-desc">How often to analyze behavior (seconds)</span>
+                                </div>
+                                <select id="setting-interval" class="setting-select">
+                                    <option value="2000">2s (Fast)</option>
+                                    <option value="3000" selected>3s (Normal)</option>
+                                    <option value="5000">5s (Slow)</option>
+                                </select>
+                            </div>
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <span class="setting-name">Intervention Threshold</span>
+                                    <span class="setting-desc">Minimum risk score to trigger interventions</span>
+                                </div>
+                                <select id="setting-threshold" class="setting-select">
+                                    <option value="30">30 (Sensitive)</option>
+                                    <option value="50" selected>50 (Balanced)</option>
+                                    <option value="70">70 (Relaxed)</option>
+                                </select>
+                            </div>
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <span class="setting-name">Simulation Intensity</span>
+                                    <span class="setting-desc">How quickly simulated behavior escalates</span>
+                                </div>
+                                <select id="setting-sim-intensity" class="setting-select">
+                                    <option value="slow">Slow Build</option>
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="fast">Fast Escalation</option>
+                                </select>
+                            </div>
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <span class="setting-name">Sound Effects</span>
+                                    <span class="setting-desc">Play sounds with interventions</span>
+                                </div>
+                                <label class="toggle">
+                                    <input type="checkbox" id="setting-sound" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card glass">
+                        <h3 class="card-title">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ff0044" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            About
+                        </h3>
+                        <div class="about-section">
+                            <p class="about-text">
+                                <strong>Dopamine Loop Disruption Engine v1.0</strong><br>
+                                AI-powered anti-addiction system that detects dopamine-driven feedback loops in real-time and uses Reinforcement Learning to adaptively intervene.
+                            </p>
+                            <div class="tech-badges">
+                                <span class="badge">RandomForest ML</span>
+                                <span class="badge">Q-Learning RL</span>
+                                <span class="badge">FastAPI</span>
+                                <span class="badge">WebSocket</span>
+                                <span class="badge">PWA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- BOTTOM NAVIGATION -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-page="dashboard" id="nav-dashboard">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                <span>Dashboard</span>
+            </button>
+            <button class="nav-item" data-page="monitor" id="nav-monitor">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
+                <span>Monitor</span>
+            </button>
+            <button class="nav-item" data-page="history" id="nav-history">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <span>History</span>
+            </button>
+            <button class="nav-item" data-page="settings" id="nav-settings">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Settings</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/interventions.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+    <script src="/static/js/monitor.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

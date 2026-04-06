@@ -1,0 +1,119 @@
+/* Overlay container */
+#dlde-intervention-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(6, 6, 15, 0.9) !important;
+    backdrop-filter: blur(15px) !important;
+    z-index: 2147483647 !important; /* Max z-index to stay on top of everything */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #e8e8f0 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease !important;
+}
+
+#dlde-intervention-overlay.dlde-active {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Modals inside the overlay */
+.dlde-modal {
+    background: rgba(14, 14, 32, 0.8) !important;
+    border: 1px solid rgba(0, 240, 255, 0.3) !important;
+    border-radius: 16px !important;
+    padding: 32px !important;
+    width: 90% !important;
+    max-width: 400px !important;
+    text-align: center !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.1) !important;
+}
+
+.dlde-title {
+    font-size: 24px !important;
+    font-weight: bold !important;
+    margin-bottom: 16px !important;
+    background: linear-gradient(135deg, #00f0ff, #bf00ff) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+.dlde-desc {
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    color: rgba(232, 232, 240, 0.8) !important;
+    margin-bottom: 24px !important;
+}
+
+.dlde-timer {
+    font-size: 48px !important;
+    font-weight: 900 !important;
+    color: #00f0ff !important;
+    margin-bottom: 24px !important;
+}
+
+/* Screen Filters */
+body.dlde-grayscale-mode {
+    filter: grayscale(1) !important;
+    transition: filter 1s ease !important;
+}
+
+body.dlde-blur-mode {
+    filter: blur(8px) !important;
+    transition: filter 0.5s ease !important;
+}
+
+/* Feed Spinner for "Delay" */
+.dlde-spinner {
+    width: 60px !important;
+    height: 60px !important;
+    border: 4px solid rgba(255, 255, 255, 0.1) !important;
+    border-top: 4px solid #00f0ff !important;
+    border-radius: 50% !important;
+    animation: dlde-spin 1s linear infinite !important;
+    margin: 0 auto 16px !important;
+}
+
+@keyframes dlde-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Base button */
+.dlde-btn {
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-weight: bold !important;
+    font-size: 14px !important;
+    margin: 0 8px !important;
+    border: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.dlde-btn-primary {
+    background: linear-gradient(135deg, #00f0ff, #bf00ff) !important;
+    color: white !important;
+}
+
+.dlde-btn-primary:hover {
+    box-shadow: 0 4px 15px rgba(0, 240, 255, 0.4) !important;
+}
+
+.dlde-btn-danger {
+    background: rgba(255, 0, 68, 0.2) !important;
+    border: 1px solid #ff0044 !important;
+    color: #ff0044 !important;
+}
+
+.dlde-btn-secondary {
+    background: transparent !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    color: #ccc !important;
+}

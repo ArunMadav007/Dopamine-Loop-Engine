@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Dopamine Loop Disruption Engine - IG Tracker",
+  "version": "1.0",
+  "description": "Tracks scroll velocity and applies AI interventions on Instagram.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*.instagram.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.instagram.com/*"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "DLDE Status"
+  }
+}
