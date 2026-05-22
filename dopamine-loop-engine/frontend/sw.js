@@ -1,13 +1,16 @@
-const CACHE_NAME = 'dlde-v1';
+const CACHE_NAME = 'dlde-v2';
 const ASSETS = [
   '/',
-  '/static/index.html',
-  '/static/css/style.css',
-  '/static/js/app.js',
-  '/static/js/dashboard.js',
-  '/static/js/monitor.js',
-  '/static/js/interventions.js',
-  '/static/js/charts.js',
+  '/index.html',
+  '/css/style.css',
+  '/js/app.js',
+  '/js/dashboard.js',
+  '/js/monitor.js',
+  '/js/interventions.js',
+  '/js/charts.js',
+  '/assets/calm-hero.svg',
+  '/assets/calm-monitor.svg',
+  '/assets/calm-history.svg',
 ];
 
 self.addEventListener('install', (event) => {

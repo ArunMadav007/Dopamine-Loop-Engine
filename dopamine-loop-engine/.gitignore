@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+env/
+
+# Build / runtime artifacts
+*.log
+*.tmp
+*.cache
+.DS_Store
+Thumbs.db
+
+# Models and generated data
+backend/saved_models/*.joblib
+backend/saved_models/*.pkl
+backend/saved_models/*.npy
+backend/saved_models/q_table.json
+
+# Coverage and reports
+.coverage
+htmlcov/
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

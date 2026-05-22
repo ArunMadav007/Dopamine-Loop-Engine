@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 380" role="img" aria-label="Cyberpunk reward timeline and causes">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#090d22"/>
+      <stop offset="100%" stop-color="#151d46"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#bf00ff"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <rect width="1000" height="380" fill="url(#bg)"/>
+
+  <g stroke="#2b3a7c" stroke-width="1" opacity="0.8">
+    <path d="M70 70 H950"/>
+    <path d="M70 125 H950"/>
+    <path d="M70 180 H950"/>
+    <path d="M70 235 H950"/>
+    <path d="M70 290 H950"/>
+    <path d="M70 345 H950"/>
+  </g>
+
+  <path d="M80 300 C140 288 150 170 220 176 C275 181 285 290 345 280 C405 270 430 110 495 120 C560 130 580 270 640 248 C700 226 730 82 790 95 C845 108 870 208 930 185" fill="none" stroke="url(#line)" stroke-width="4" filter="url(#glow)"/>
+
+  <g fill="#00f0ff" filter="url(#glow)">
+    <circle cx="220" cy="176" r="5"/>
+    <circle cx="495" cy="120" r="5"/>
+    <circle cx="790" cy="95" r="5"/>
+  </g>
+
+  <g font-family="Arial" font-size="15" fill="#afc1ff">
+    <text x="180" y="160">Notification burst</text>
+    <text x="447" y="104">Infinite recommendations</text>
+    <text x="742" y="79">Late-night loop</text>
+    <text x="80" y="40" font-size="17" fill="#d7e3ff">Reward Spike Timeline</text>
+  </g>
+
+  <g fill="#ff3b78" font-family="Arial" font-size="13" opacity="0.95">
+    <text x="115" y="336">Time cost</text>
+    <text x="380" y="336">Attention drain</text>
+    <text x="700" y="336">Sleep debt</text>
+  </g>
+</svg>

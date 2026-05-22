@@ -56,6 +56,23 @@
         });
     });
 
+    document.getElementById('setting-goal-mode')?.addEventListener('change', async (event) => {
+        try {
+            const response = await fetch('/api/budget/mode', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ goal_mode: event.target.value }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                Dashboard.updateBudgetSummary(data.budget);
+            }
+        } catch (error) {
+            console.warn('[APP] Could not update goal mode:', error);
+        }
+    });
+
     // ── Load Historical Data ────────────────────────
 
     async function loadHistoryData() {
@@ -80,7 +97,14 @@
             if (statsResp.ok) {
                 const statsData = await statsResp.json();
                 Dashboard.updateRLStats(statsData.rl_agent);
+                Dashboard.updateBudgetSummary(statsData.budget);
                 Dashboard.renderQTable(statsData.q_table);
+                Dashboard.updateInsights(statsData.insights);
+
+                const goalModeSelect = document.getElementById('setting-goal-mode');
+                if (goalModeSelect && statsData.budget?.goal_mode) {
+                    goalModeSelect.value = statsData.budget.goal_mode;
+                }
             }
         } catch (e) {
             console.warn('[APP] Could not load history:', e);
@@ -95,6 +119,13 @@
             if (resp.ok) {
                 const data = await resp.json();
                 Dashboard.updateRLStats(data.rl_agent);
+                Dashboard.updateBudgetSummary(data.budget);
+                Dashboard.updateInsights(data.insights);
+
+                const goalModeSelect = document.getElementById('setting-goal-mode');
+                if (goalModeSelect && data.budget?.goal_mode) {
+                    goalModeSelect.value = data.budget.goal_mode;
+                }
 
                 // Show initial safe state
                 Dashboard.updateRiskGauge(0, 'SAFE');
@@ -118,6 +149,8 @@
                 if (resp.ok) {
                     const data = await resp.json();
                     Dashboard.updateRLStats(data.rl_agent);
+                    Dashboard.updateBudgetSummary(data.budget);
+                    Dashboard.updateInsights(data.insights);
                 }
             } catch (e) {
                 // Silent fail
@@ -128,7 +161,7 @@
     // ── Service Worker Registration ─────────────────
 
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/static/sw.js').catch(err => {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
             console.warn('[SW] Registration failed:', err);
         });
     }
@@ -138,7 +171,7 @@
     loadInitialStats();
 
     console.log(
-        '%c🧠 DOPAMINE LOOP DISRUPTION ENGINE%c v1.0',
+        '%c🧠 DOPAMINE LOOP DISRUPTION ENGINE%c v1.1',
         'color: #00f0ff; font-size: 16px; font-weight: bold; font-family: monospace;',
         'color: #bf00ff; font-size: 12px; font-family: monospace;'
     );

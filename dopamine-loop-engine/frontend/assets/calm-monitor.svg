@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 550" role="img" aria-label="Trigger action reward repetition loop">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a1026"/>
+      <stop offset="100%" stop-color="#171f47"/>
+    </linearGradient>
+    <linearGradient id="loop" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#bf00ff"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <rect width="800" height="550" fill="url(#bg)"/>
+
+  <g fill="none" stroke="url(#loop)" stroke-width="5" filter="url(#glow)">
+    <path d="M400 85 C560 85 690 210 690 275 C690 340 560 465 400 465 C240 465 110 340 110 275 C110 210 240 85 400 85 Z"/>
+    <path d="M637 205 l34 0 l-15 -24"/>
+    <path d="M556 430 l28 18 l-3 -28"/>
+    <path d="M163 350 l-30 10 l20 20"/>
+    <path d="M222 120 l-14 -26 l-17 23"/>
+  </g>
+
+  <g font-family="Arial" font-size="22" font-weight="700" text-anchor="middle">
+    <circle cx="400" cy="120" r="56" fill="#11193d" stroke="#00f0ff" stroke-width="2"/>
+    <text x="400" y="114" fill="#9defff">TRIGGER</text>
+    <text x="400" y="140" fill="#6fb6ff" font-size="15">alerts, boredom</text>
+
+    <circle cx="625" cy="275" r="56" fill="#11193d" stroke="#bf00ff" stroke-width="2"/>
+    <text x="625" y="269" fill="#e5b7ff">ACTION</text>
+    <text x="625" y="295" fill="#b992ff" font-size="15">scroll, tap, refresh</text>
+
+    <circle cx="400" cy="430" r="56" fill="#11193d" stroke="#00ff88" stroke-width="2"/>
+    <text x="400" y="424" fill="#b1ffd8">REWARD</text>
+    <text x="400" y="450" fill="#8ddfb8" font-size="15">novelty hit</text>
+
+    <circle cx="175" cy="275" r="56" fill="#11193d" stroke="#ff3b78" stroke-width="2"/>
+    <text x="175" y="269" fill="#ffb4ca">REPEAT</text>
+    <text x="175" y="295" fill="#ff93b5" font-size="15">habit wiring</text>
+  </g>
+
+  <text x="400" y="520" fill="#9eb4ff" font-family="Arial" font-size="18" text-anchor="middle">Break the loop early: reduce triggers and delay automatic action.</text>
+</svg>

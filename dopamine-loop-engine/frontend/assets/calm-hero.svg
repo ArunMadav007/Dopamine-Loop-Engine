@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-label="Cyberpunk causes of dopamine loop">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#090d1f"/>
+      <stop offset="100%" stop-color="#12183a"/>
+    </linearGradient>
+    <linearGradient id="phone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#141d45"/>
+      <stop offset="100%" stop-color="#0e1432"/>
+    </linearGradient>
+    <linearGradient id="feed" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#bf00ff"/>
+    </linearGradient>
+    <filter id="glowCyan">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="700" fill="url(#bg)"/>
+
+  <g opacity="0.35" stroke="#30407f" stroke-width="1">
+    <path d="M0 120 H1200"/>
+    <path d="M0 220 H1200"/>
+    <path d="M0 320 H1200"/>
+    <path d="M0 420 H1200"/>
+    <path d="M0 520 H1200"/>
+    <path d="M140 0 V700"/>
+    <path d="M340 0 V700"/>
+    <path d="M540 0 V700"/>
+    <path d="M740 0 V700"/>
+    <path d="M940 0 V700"/>
+  </g>
+
+  <rect x="420" y="70" width="360" height="560" rx="42" fill="url(#phone)" stroke="#3c4f9b" stroke-width="3"/>
+  <rect x="450" y="125" width="300" height="430" rx="20" fill="#0a112b" stroke="#314287" stroke-width="2"/>
+
+  <g filter="url(#glowCyan)">
+    <rect x="470" y="160" width="260" height="16" rx="8" fill="url(#feed)" opacity="0.9"/>
+    <rect x="470" y="200" width="220" height="14" rx="7" fill="#00f0ff" opacity="0.8"/>
+    <rect x="470" y="234" width="250" height="14" rx="7" fill="#bf00ff" opacity="0.75"/>
+    <rect x="470" y="268" width="230" height="14" rx="7" fill="#00f0ff" opacity="0.78"/>
+    <rect x="470" y="302" width="245" height="14" rx="7" fill="#bf00ff" opacity="0.75"/>
+    <rect x="470" y="336" width="210" height="14" rx="7" fill="#00f0ff" opacity="0.78"/>
+    <rect x="470" y="370" width="252" height="14" rx="7" fill="#bf00ff" opacity="0.75"/>
+    <rect x="470" y="404" width="225" height="14" rx="7" fill="#00f0ff" opacity="0.78"/>
+  </g>
+
+  <g fill="#0d1533" stroke="#ff3b78" stroke-width="2" filter="url(#glowCyan)">
+    <rect x="350" y="120" width="74" height="34" rx="17"/>
+    <text x="386" y="143" fill="#ff78a3" font-size="18" text-anchor="middle" font-family="Arial">+12</text>
+    <rect x="790" y="170" width="90" height="34" rx="17"/>
+    <text x="835" y="193" fill="#ff78a3" font-size="17" text-anchor="middle" font-family="Arial">NEW</text>
+    <rect x="300" y="290" width="108" height="34" rx="17"/>
+    <text x="354" y="313" fill="#ff78a3" font-size="17" text-anchor="middle" font-family="Arial">ALERT</text>
+  </g>
+
+  <g stroke="url(#feed)" stroke-width="3" fill="none" opacity="0.9" filter="url(#glowCyan)">
+    <path d="M220 540 C330 460 430 470 520 540"/>
+    <path d="M520 540 C620 620 760 620 860 540"/>
+    <path d="M860 540 C770 450 650 450 560 510"/>
+  </g>
+  <text x="548" y="666" fill="#9cb2ff" font-size="24" font-family="Arial" text-anchor="middle">TRIGGER -> SCROLL -> REWARD -> REPEAT</text>
+</svg>

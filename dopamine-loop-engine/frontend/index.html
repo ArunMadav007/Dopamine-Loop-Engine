@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="AI-powered anti-addiction system that detects and disrupts dopamine loops in real-time">
-    <meta name="theme-color" content="#00f0ff">
+    <meta name="theme-color" content="#b7e4d6">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>DLDE — Dopamine Loop Disruption Engine</title>
-    <link rel="manifest" href="/static/manifest.json">
+    <title>DLDE | Calm Focus Companion</title>
+    <link rel="manifest" href="./manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Nunito+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
     <!-- ═══════════ INTERVENTION OVERLAYS ═══════════ -->
@@ -43,7 +43,7 @@
                     </svg>
                 </div>
                 <div class="header-title">
-                    <h1>DLDE</h1>
+                    <h1>Mindful Loop</h1>
                     <span class="header-subtitle">Dopamine Loop Disruption Engine</span>
                 </div>
             </div>
@@ -63,6 +63,14 @@
             <!-- ══════ DASHBOARD PAGE ══════ -->
             <section id="page-dashboard" class="page active">
                 <div class="page-scroll">
+
+                    <div class="card card-banner glass">
+                        <div class="banner-copy">
+                            <p class="banner-kicker">Understand the trigger chain</p>
+                            <h2>See how endless feeds, alerts, and micro-rewards pull attention loops.</h2>
+                            <p class="banner-body">This dashboard highlights the behavioral causes behind dopamine loops so users can interrupt them intentionally.</p>
+                        </div>
+                    </div>
                     
                     <!-- Risk Score Gauge -->
                     <div class="card card-hero glass">
@@ -155,6 +163,91 @@
                         </div>
                     </div>
 
+                    <!-- Dopamine Budget -->
+                    <div class="card glass budget-card">
+                        <h3 class="card-title">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ffb347" stroke-width="2"><path d="M12 3v18M5 8h14M5 16h14"/></svg>
+                            Dopamine Budget
+                        </h3>
+                        <div class="budget-meter">
+                            <div id="budget-meter-fill" class="budget-meter-fill"></div>
+                        </div>
+                        <div class="budget-summary-grid">
+                            <div class="budget-summary-item">
+                                <span class="budget-summary-label">Remaining</span>
+                                <strong id="budget-remaining" class="budget-summary-value">100%</strong>
+                            </div>
+                            <div class="budget-summary-item">
+                                <span class="budget-summary-label">Spent</span>
+                                <strong id="budget-spent" class="budget-summary-value">0</strong>
+                            </div>
+                            <div class="budget-summary-item">
+                                <span class="budget-summary-label">Debt</span>
+                                <strong id="budget-debt" class="budget-summary-value">0</strong>
+                            </div>
+                            <div class="budget-summary-item">
+                                <span class="budget-summary-label">Stage</span>
+                                <strong id="budget-stage" class="budget-summary-value">Healthy</strong>
+                            </div>
+                        </div>
+                        <div class="budget-meta-row">
+                            <span class="budget-meta-pill" id="budget-mode">Balanced</span>
+                            <span class="budget-meta-pill" id="budget-recovery">Recovery Off</span>
+                            <span class="budget-meta-pill" id="budget-cooldown">0s cooldown</span>
+                            <span class="budget-meta-pill" id="budget-soft-warnings">0 soft warnings</span>
+                            <span class="budget-meta-pill" id="budget-hard-warnings">0 hard warnings</span>
+                        </div>
+                        <div class="budget-section">
+                            <div class="budget-section-title">Trigger Patterns</div>
+                            <div id="budget-patterns" class="budget-chip-list">
+                                <span class="budget-empty">Waiting for live data</span>
+                            </div>
+                        </div>
+                        <div class="budget-section">
+                            <div class="budget-section-title">Vulnerable Windows</div>
+                            <div id="budget-windows" class="budget-chip-list">
+                                <span class="budget-empty">Waiting for live data</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card glass budget-card">
+                        <h3 class="card-title">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#00f0ff" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.74V17h8v-2.26A7 7 0 0 0 12 2z"/></svg>
+                            Personalized Insights
+                        </h3>
+                        <div class="budget-summary-grid">
+                            <div class="budget-summary-item">
+                                <span class="budget-summary-label">Avg Risk</span>
+                                <strong id="insight-avg-risk" class="budget-summary-value">—</strong>
+                            </div>
+                            <div class="budget-summary-item">
+                                <span class="budget-summary-label">Trend</span>
+                                <strong id="insight-trend" class="budget-summary-value insight-trend">—</strong>
+                            </div>
+                            <div class="budget-summary-item">
+                                <span class="budget-summary-label">Responsiveness</span>
+                                <strong id="insight-responsiveness" class="budget-summary-value">—</strong>
+                            </div>
+                            <div class="budget-summary-item">
+                                <span class="budget-summary-label">Today Challenge</span>
+                                <strong id="insight-challenge" class="budget-summary-value insight-challenge">—</strong>
+                            </div>
+                        </div>
+                        <div class="budget-section">
+                            <div class="budget-section-title">Top Triggers</div>
+                            <div id="insight-triggers" class="budget-chip-list">
+                                <span class="budget-empty">Gathering signal</span>
+                            </div>
+                        </div>
+                        <div class="budget-section">
+                            <div class="budget-section-title">Most Helpful Interventions</div>
+                            <div id="insight-helpful" class="budget-chip-list">
+                                <span class="budget-empty">Need feedback to rank interventions</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Risk Score History Chart -->
                     <div class="card glass">
                         <h3 class="card-title">
@@ -226,6 +319,12 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="card card-quote glass">
+                        <blockquote>
+                            "Dopamine loops are engineered by triggers, variable rewards, and repetition."
+                        </blockquote>
+                    </div>
                 </div>
             </section>
 
@@ -280,6 +379,13 @@
                             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                             Start Monitoring
                         </button>
+                    </div>
+
+                    <div class="card card-side-image glass">
+                        <div>
+                            <h3 class="card-title">Breathe Before Reacting</h3>
+                            <p class="about-text">Watch the chain in real-time: trigger, action, reward, repeat. Intervene before the habit locks in.</p>
+                        </div>
                     </div>
 
                     <!-- Live Metrics Sparklines -->
@@ -411,6 +517,18 @@
                             </div>
                             <div class="setting-row">
                                 <div class="setting-info">
+                                    <span class="setting-name">Attention Goal Mode</span>
+                                    <span class="setting-desc">Tune how strict the dopamine budget should be</span>
+                                </div>
+                                <select id="setting-goal-mode" class="setting-select">
+                                    <option value="focus">Focus</option>
+                                    <option value="balanced" selected>Balanced</option>
+                                    <option value="recovery">Recovery</option>
+                                    <option value="casual">Casual</option>
+                                </select>
+                            </div>
+                            <div class="setting-row">
+                                <div class="setting-info">
                                     <span class="setting-name">Sound Effects</span>
                                     <span class="setting-desc">Play sounds with interventions</span>
                                 </div>
@@ -428,7 +546,7 @@
                         </h3>
                         <div class="about-section">
                             <p class="about-text">
-                                <strong>Dopamine Loop Disruption Engine v1.0</strong><br>
+                                <strong>Dopamine Loop Disruption Engine v1.1</strong><br>
                                 AI-powered anti-addiction system that detects dopamine-driven feedback loops in real-time and uses Reinforcement Learning to adaptively intervene.
                             </p>
                             <div class="tech-badges">
@@ -466,10 +584,10 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="/static/js/charts.js"></script>
-    <script src="/static/js/interventions.js"></script>
-    <script src="/static/js/dashboard.js"></script>
-    <script src="/static/js/monitor.js"></script>
-    <script src="/static/js/app.js"></script>
+    <script src="./js/charts.js"></script>
+    <script src="./js/interventions.js"></script>
+    <script src="./js/dashboard.js"></script>
+    <script src="./js/monitor.js"></script>
+    <script src="./js/app.js"></script>
 </body>
 </html>
