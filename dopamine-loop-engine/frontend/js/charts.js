@@ -5,13 +5,13 @@
 
 const Charts = (() => {
     const COLORS = {
-        cyan: '#00f0ff',
-        magenta: '#bf00ff',
-        green: '#00ff88',
-        amber: '#ffaa00',
-        red: '#ff0044',
-        grid: 'rgba(255,255,255,0.04)',
-        text: 'rgba(232,232,240,0.4)',
+        cyan: '#6c5ce7',
+        magenta: '#a78bfa',
+        green: '#10b981',
+        amber: '#f59e0b',
+        red: '#ef4444',
+        grid: 'rgba(0, 0, 0, 0.05)',
+        text: 'rgba(107, 114, 128, 0.7)',
     };
 
     function getCtx(canvasId) {
@@ -66,7 +66,7 @@ const Charts = (() => {
 
         // Y-axis labels
         ctx.fillStyle = COLORS.text;
-        ctx.font = '10px JetBrains Mono, monospace';
+        ctx.font = '10px "Space Mono", monospace';
         ctx.textAlign = 'right';
         for (let i = 0; i <= 4; i++) {
             const val = minY + ((maxY - minY) / 4) * (4 - i);
@@ -125,7 +125,7 @@ const Charts = (() => {
 
         // Glow effect
         ctx.shadowColor = color;
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 6;
         ctx.stroke();
         ctx.shadowBlur = 0;
 
@@ -136,7 +136,7 @@ const Charts = (() => {
                 ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
                 ctx.fillStyle = color;
                 ctx.fill();
-                ctx.strokeStyle = '#0a0a1a';
+                ctx.strokeStyle = '#ffffff';
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
             });
@@ -149,7 +149,7 @@ const Charts = (() => {
         ctx.fillStyle = color;
         ctx.fill();
         ctx.shadowColor = color;
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 8;
         ctx.fill();
         ctx.shadowBlur = 0;
     }
@@ -185,28 +185,22 @@ const Charts = (() => {
             // Bar gradient
             const grad = ctx.createLinearGradient(x, y, x, y + barH);
             grad.addColorStop(0, color);
-            grad.addColorStop(1, color + '40');
+            grad.addColorStop(1, color + '60');
 
             ctx.fillStyle = grad;
             ctx.beginPath();
             ctx.roundRect(x, y, barW, barH, [4, 4, 0, 0]);
             ctx.fill();
 
-            // Glow
-            ctx.shadowColor = color;
-            ctx.shadowBlur = 8;
-            ctx.fill();
-            ctx.shadowBlur = 0;
-
             // Label
             ctx.fillStyle = COLORS.text;
-            ctx.font = '9px Inter, sans-serif';
+            ctx.font = '9px "Nunito Sans", sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText(labels[i] || '', x + barW / 2, h - padding.bottom + 14);
 
             // Value
             ctx.fillStyle = color;
-            ctx.font = '10px JetBrains Mono, monospace';
+            ctx.font = '10px "Space Mono", monospace';
             ctx.fillText(Math.round(val), x + barW / 2, y - 5);
         });
     }
@@ -242,7 +236,7 @@ const Charts = (() => {
 
         // Fill
         const gradient = ctx.createLinearGradient(0, 0, 0, h);
-        gradient.addColorStop(0, color + '30');
+        gradient.addColorStop(0, color + '25');
         gradient.addColorStop(1, color + '00');
 
         ctx.beginPath();

@@ -1,164 +1,215 @@
 /**
- * App Controller — Main application entry point
- * Handles routing, navigation, initialization, and global state
+ * App Module — Central controller
+ *
+ * Handles:
+ *  - Page navigation (sidebar + bottom nav)
+ *  - Periodic REST polling (/api/stats, /api/history)
+ *  - Goal mode syncing
+ *  - History table tabs
+ *  - Moss initialisation
+ *  - Service Worker registration
  */
 
 (function () {
     'use strict';
 
-    // ── Page Navigation ─────────────────────────────
+    // ── NAVIGATION ──────────────────────────────
 
-    const navItems = document.querySelectorAll('.nav-item');
-    const pages = document.querySelectorAll('.page');
-    let currentPage = 'dashboard';
-
-    function navigateTo(pageId) {
-        currentPage = pageId;
-
-        pages.forEach(page => {
-            page.classList.toggle('active', page.id === `page-${pageId}`);
+    /** Navigate to a page and update nav state. */
+    function navigateTo(pageName) {
+        // Pages
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.toggle('active', page.id === `page-${pageName}`);
         });
-
-        navItems.forEach(item => {
-            item.classList.toggle('active', item.dataset.page === pageId);
+        // Sidebar nav
+        document.querySelectorAll('.sidebar-nav-item').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.page === pageName);
         });
-
-        // Refresh data when switching to certain pages
-        if (pageId === 'history') {
-            loadHistoryData();
-        }
+        // Bottom nav
+        document.querySelectorAll('.nav-item').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.page === pageName);
+        });
     }
 
-    navItems.forEach(item => {
-        item.addEventListener('click', () => {
-            navigateTo(item.dataset.page);
+    // Wire sidebar nav buttons
+    document.querySelectorAll('.sidebar-nav-item').forEach(btn => {
+        btn.addEventListener('click', () => navigateTo(btn.dataset.page));
+    });
+
+    // Wire bottom nav buttons
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.addEventListener('click', () => navigateTo(btn.dataset.page));
+    });
+
+    // ── HISTORY TABS ────────────────────────────
+
+    document.querySelectorAll('.history-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            const tabName = tab.dataset.tab;
+            const readingsCard = document.getElementById('history-readings-card');
+            const interventionsCard = document.getElementById('history-interventions-card');
+
+            if (readingsCard) readingsCard.classList.toggle('hidden', tabName !== 'readings');
+            if (interventionsCard) interventionsCard.classList.toggle('hidden', tabName !== 'interventions');
         });
     });
 
-    // Settings button → settings page
-    document.getElementById('btn-settings')?.addEventListener('click', () => {
-        navigateTo('settings');
-    });
+    // ── MONITOR CONTROLS ────────────────────────
 
-    // ── Monitor Controls ────────────────────────────
+    const btnStartMonitor = document.getElementById('btn-start-monitor');
+    if (btnStartMonitor) {
+        btnStartMonitor.addEventListener('click', () => {
+            if (Monitor.isRunning()) {
+                Monitor.stop();
+            } else {
+                Monitor.start();
+            }
+        });
+    }
 
-    document.getElementById('btn-start-monitor')?.addEventListener('click', () => {
-        if (Monitor.isRunning()) {
-            Monitor.stop();
-        } else {
-            Monitor.start();
-        }
-    });
-
+    // Mode buttons
     document.querySelectorAll('.mode-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             Monitor.setMode(btn.dataset.mode);
         });
     });
 
-    document.getElementById('setting-goal-mode')?.addEventListener('change', async (event) => {
-        try {
-            const response = await fetch('/api/budget/mode', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ goal_mode: event.target.value }),
-            });
+    // ── GOAL MODE ───────────────────────────────
 
-            if (response.ok) {
-                const data = await response.json();
-                Dashboard.updateBudgetSummary(data.budget);
-            }
-        } catch (error) {
-            console.warn('[APP] Could not update goal mode:', error);
-        }
+    // Settings page dropdown
+    const settingGoalMode = document.getElementById('setting-goal-mode');
+    if (settingGoalMode) {
+        settingGoalMode.addEventListener('change', () => {
+            changeGoalMode(settingGoalMode.value);
+        });
+    }
+
+    // Dashboard dropdown
+    const dashboardGoalMode = document.getElementById('dashboard-goal-mode');
+    if (dashboardGoalMode) {
+        dashboardGoalMode.addEventListener('change', () => {
+            changeGoalMode(dashboardGoalMode.value);
+        });
+    }
+
+    // Goal mode cards
+    document.querySelectorAll('.goal-mode-card').forEach(card => {
+        card.addEventListener('click', () => {
+            changeGoalMode(card.dataset.mode);
+        });
     });
 
-    // ── Load Historical Data ────────────────────────
+    async function changeGoalMode(mode) {
+        Dashboard.syncGoalModeUI(mode);
 
-    async function loadHistoryData() {
         try {
-            // Load session history
-            const histResp = await fetch('/api/history');
-            if (histResp.ok) {
-                const histData = await histResp.json();
-                Dashboard.updateSessionHistoryChart(histData.history);
-
-                // Compute intervention counts
-                const counts = {};
-                (histData.interventions || []).forEach(i => {
-                    const type = i.type || 'unknown';
-                    counts[type] = (counts[type] || 0) + 1;
-                });
-                Dashboard.updateEffectivenessChart(counts);
-            }
-
-            // Load stats (includes Q-table)
-            const statsResp = await fetch('/api/stats');
-            if (statsResp.ok) {
-                const statsData = await statsResp.json();
-                Dashboard.updateRLStats(statsData.rl_agent);
-                Dashboard.updateBudgetSummary(statsData.budget);
-                Dashboard.renderQTable(statsData.q_table);
-                Dashboard.updateInsights(statsData.insights);
-
-                const goalModeSelect = document.getElementById('setting-goal-mode');
-                if (goalModeSelect && statsData.budget?.goal_mode) {
-                    goalModeSelect.value = statsData.budget.goal_mode;
-                }
-            }
-        } catch (e) {
-            console.warn('[APP] Could not load history:', e);
-        }
-    }
-
-    // ── Initial Stats Load ──────────────────────────
-
-    async function loadInitialStats() {
-        try {
-            const resp = await fetch('/api/stats');
+            const resp = await fetch(Config.apiUrl('/api/budget'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ goal_mode: mode }),
+            });
             if (resp.ok) {
-                const data = await resp.json();
-                Dashboard.updateRLStats(data.rl_agent);
-                Dashboard.updateBudgetSummary(data.budget);
-                Dashboard.updateInsights(data.insights);
-
-                const goalModeSelect = document.getElementById('setting-goal-mode');
-                if (goalModeSelect && data.budget?.goal_mode) {
-                    goalModeSelect.value = data.budget.goal_mode;
-                }
-
-                // Show initial safe state
-                Dashboard.updateRiskGauge(0, 'SAFE');
-                Dashboard.updateAIState({
-                    state: 'NORMAL',
-                    confidence: 0,
-                });
+                const budget = await resp.json();
+                Dashboard.updateBudgetSummary(budget);
             }
         } catch (e) {
-            console.warn('[APP] Backend not reachable. Make sure the server is running.');
-            Dashboard.updateRiskGauge(0, 'SAFE');
+            console.error('[GOAL_MODE]', e);
         }
     }
 
-    // ── Periodic Stats Refresh ──────────────────────
+    // ── PERIODIC POLLING ────────────────────────
 
-    setInterval(async () => {
-        if (currentPage === 'dashboard') {
-            try {
-                const resp = await fetch('/api/stats');
-                if (resp.ok) {
-                    const data = await resp.json();
-                    Dashboard.updateRLStats(data.rl_agent);
-                    Dashboard.updateBudgetSummary(data.budget);
-                    Dashboard.updateInsights(data.insights);
-                }
-            } catch (e) {
-                // Silent fail
-            }
+    let pollTimer = null;
+
+    function startPolling() {
+        poll(); // Immediate first call
+        pollTimer = setInterval(poll, 15000); // Then every 15s
+    }
+
+    async function poll() {
+        try {
+            await Promise.all([fetchStats(), fetchHistory(), fetchBudget()]);
+        } catch (e) {
+            console.warn('[POLL] Error:', e);
         }
-    }, 10000);
+    }
 
-    // ── Service Worker Registration ─────────────────
+    async function fetchStats() {
+        try {
+            const resp = await fetch(Config.apiUrl('/api/stats'));
+            if (!resp.ok) return;
+            const data = await resp.json();
+
+            Dashboard.updateRLStats(data.rl_agent);
+            Dashboard.renderQTable(data.q_table);
+            Dashboard.updateInsights(data.insights);
+        } catch (e) {
+            console.warn('[STATS]', e);
+        }
+    }
+
+    async function fetchHistory() {
+        try {
+            const resp = await fetch(Config.apiUrl('/api/history'));
+            if (!resp.ok) return;
+            const data = await resp.json();
+            const history = data.history || [];
+
+            if (history.length > 0) {
+                Dashboard.updateSessionHistoryChart(history);
+                Dashboard.updateHistoryReadings(history);
+            }
+
+            // Intervention counts for effectiveness chart
+            const interventionCounts = {};
+            const interventionList = [];
+            history.forEach(h => {
+                if (h.intervention_triggered && h.intervention_triggered !== 'none') {
+                    const type = h.intervention_triggered;
+                    interventionCounts[type] = (interventionCounts[type] || 0) + 1;
+                    interventionList.push({
+                        timestamp: h.timestamp,
+                        type: type,
+                        risk_score: h.risk_score,
+                    });
+                }
+            });
+
+            if (Object.keys(interventionCounts).length > 0) {
+                Dashboard.updateEffectivenessChart(interventionCounts);
+            }
+
+            if (interventionList.length > 0) {
+                Dashboard.updateHistoryInterventions(interventionList);
+            }
+        } catch (e) {
+            console.warn('[HISTORY]', e);
+        }
+    }
+
+    async function fetchBudget() {
+        try {
+            const resp = await fetch(Config.apiUrl('/api/budget'));
+            if (!resp.ok) return;
+            const data = await resp.json();
+            Dashboard.updateBudgetSummary(data);
+        } catch (e) {
+            console.warn('[BUDGET]', e);
+        }
+    }
+
+    // ── MOSS INITIALISATION ─────────────────────
+
+    function initMoss() {
+        if (typeof Moss !== 'undefined') {
+            Moss.init('moss-container', 'moss-speech-text');
+        }
+    }
+
+    // ── SERVICE WORKER ──────────────────────────
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').catch(err => {
@@ -166,17 +217,11 @@
         });
     }
 
-    // ── Initialize ──────────────────────────────────
+    // ── BOOT ────────────────────────────────────
 
-    loadInitialStats();
-
-    console.log(
-        '%c🧠 DOPAMINE LOOP DISRUPTION ENGINE%c v1.1',
-        'color: #00f0ff; font-size: 16px; font-weight: bold; font-family: monospace;',
-        'color: #bf00ff; font-size: 12px; font-family: monospace;'
-    );
-    console.log(
-        '%cAI-powered anti-addiction system active.',
-        'color: #00ff88; font-family: monospace;'
-    );
+    document.addEventListener('DOMContentLoaded', () => {
+        initMoss();
+        startPolling();
+        navigateTo('dashboard');
+    });
 })();

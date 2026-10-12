@@ -1,16 +1,15 @@
-const CACHE_NAME = 'dlde-v2';
+const CACHE_NAME = 'dlde-v3';
 const ASSETS = [
   '/',
   '/index.html',
   '/css/style.css',
-  '/js/app.js',
+  '/js/config.js',
+  '/js/charts.js',
+  '/js/moss.js',
+  '/js/interventions.js',
   '/js/dashboard.js',
   '/js/monitor.js',
-  '/js/interventions.js',
-  '/js/charts.js',
-  '/assets/calm-hero.svg',
-  '/assets/calm-monitor.svg',
-  '/assets/calm-history.svg',
+  '/js/app.js',
 ];
 
 self.addEventListener('install', (event) => {

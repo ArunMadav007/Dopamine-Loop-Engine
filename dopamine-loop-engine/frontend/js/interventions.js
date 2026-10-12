@@ -1,6 +1,6 @@
 /**
  * Interventions Module — Handles all intervention types
- * Grayscale, Delay, Awareness Popup, Screen Blur, Forced Break
+ * Grayscale, Delay, Awareness Popup, Screen Blur, Forced Break, Opportunity Cost
  */
 
 const Interventions = (() => {
@@ -36,6 +36,9 @@ const Interventions = (() => {
             case 'forced_break':
                 triggerForcedBreak(riskData, sessionStats);
                 break;
+            case 'opportunity_cost':
+                triggerOpportunityCost(riskData, sessionStats);
+                break;
             default:
                 break;
         }
@@ -51,15 +54,14 @@ const Interventions = (() => {
 
         showOverlay(`
             <div class="intervention-icon">🎨</div>
-            <h2 class="intervention-title">GRAYSCALE ACTIVATED</h2>
+            <h2 class="intervention-title">Grayscale Activated</h2>
             <p class="intervention-desc">
-                Screen colors have been removed to reduce visual stimulation and break the dopamine loop.
+                Screen colors have been softened to reduce visual stimulation and help break the attention loop.
             </p>
             ${renderStats(riskData, sessionStats)}
             ${renderFeedbackButtons()}
         `);
 
-        // Auto-remove after 15 seconds
         interventionTimer = setTimeout(() => {
             document.body.classList.remove('grayscale-mode');
             if (overlay && !overlay.classList.contains('hidden')) {
@@ -79,7 +81,7 @@ const Interventions = (() => {
         delayOverlay.id = 'delay-overlay';
         delayOverlay.innerHTML = `
             <div class="delay-spinner"></div>
-            <span class="delay-text">COGNITIVE COOLING...</span>
+            <span class="delay-text">Taking a moment to pause…</span>
         `;
         document.body.appendChild(delayOverlay);
 
@@ -87,10 +89,10 @@ const Interventions = (() => {
             delayOverlay.remove();
             showOverlay(`
                 <div class="intervention-icon">⏳</div>
-                <h2 class="intervention-title">DELAY APPLIED</h2>
+                <h2 class="intervention-title">Pause Applied</h2>
                 <p class="intervention-desc">
-                    A ${delayMs / 1000}s delay was added to slow the content loop. 
-                    This micro-pause helps your brain reset.
+                    A ${delayMs / 1000}s pause was added to slow the content loop.
+                    This micro-break helps your mind reset.
                 </p>
                 ${renderFeedbackButtons()}
             `);
@@ -106,9 +108,9 @@ const Interventions = (() => {
 
         showOverlay(`
             <div class="intervention-icon">💬</div>
-            <h2 class="intervention-title">AWARENESS CHECK</h2>
+            <h2 class="intervention-title">Awareness Check</h2>
             <p class="intervention-desc">
-                Hey! You've been scrolling for a while. Here's what your brain activity looks like right now:
+                Hey! You've been browsing for a while. Here's a snapshot of your current session:
             </p>
             <div class="intervention-stats">
                 <div class="intervention-stat">
@@ -124,34 +126,33 @@ const Interventions = (() => {
                     <span class="is-label">Interventions</span>
                 </div>
             </div>
-            <p class="intervention-desc" style="font-size: 0.9rem; color: var(--amber);">
-                ⚠ Consider taking a short break to reset your dopamine levels.
+            <p class="intervention-desc" style="font-size:0.82rem; color:#d97706;">
+                Consider a short break to reset your focus.
             </p>
             ${renderFeedbackButtons()}
         `);
     }
 
     /**
-     * 🔕 Screen Blur — Blur the entire screen
+     * 🌫️ Screen Blur — Blur the entire screen
      */
     function triggerBlur(riskData, sessionStats) {
         document.body.classList.add('blur-mode');
 
         showOverlay(`
-            <div class="intervention-icon">🔕</div>
-            <h2 class="intervention-title">FOCUS BREAK</h2>
+            <div class="intervention-icon">🌫️</div>
+            <h2 class="intervention-title">Focus Break</h2>
             <p class="intervention-desc">
-                Your screen has been blurred to break the visual fixation loop. 
+                Your screen has been softened to break the visual fixation loop.
                 Take 3 deep breaths and look away from the screen.
             </p>
             <div class="intervention-timer" id="blur-timer">5</div>
-            <p class="intervention-desc" style="font-size: 0.75rem;">
-                Screen will clear in a few seconds...
+            <p class="intervention-desc" style="font-size:0.78rem;">
+                Screen will clear in a few seconds…
             </p>
             ${renderFeedbackButtons()}
         `);
 
-        // Countdown timer
         let count = 5;
         const timerEl = document.getElementById('blur-timer');
         interventionTimer = setInterval(() => {
@@ -168,17 +169,17 @@ const Interventions = (() => {
      * 📴 Forced Break — Suggest a break with countdown
      */
     function triggerForcedBreak(riskData, sessionStats) {
-        let breakTime = 30; // 30 second break
+        let breakTime = 30;
 
         showOverlay(`
             <div class="intervention-icon">📴</div>
-            <h2 class="intervention-title">BREAK TIME</h2>
+            <h2 class="intervention-title">Break Time</h2>
             <p class="intervention-desc">
-                Your addiction risk is critically high. A 30-second break is strongly recommended.
+                Your attention risk is elevated. A 30-second break is recommended to help you refocus.
             </p>
             <div class="intervention-timer" id="break-timer">${breakTime}</div>
-            <p class="intervention-desc" style="font-size: 0.75rem;">
-                Stand up • Stretch • Look at something far away 🌿
+            <p class="intervention-desc" style="font-size:0.78rem;">
+                Stand up · Stretch · Look at something far away 🌿
             </p>
             ${renderStats(riskData, sessionStats)}
             ${renderFeedbackButtons('Skip Break')}
@@ -196,6 +197,42 @@ const Interventions = (() => {
     }
 
     /**
+     * 🔍 Opportunity Cost — Show what you could do instead
+     */
+    function triggerOpportunityCost(riskData, sessionStats) {
+        const mins = Math.floor((sessionStats?.sessionTime || 0) / 60);
+        const alternatives = [
+            { emoji: '📖', text: 'Read a few pages of a book' },
+            { emoji: '🚶', text: 'Try taking a walk doomscroll psycho' },
+            { emoji: '🎵', text: 'Listen to your favourite song' },
+            { emoji: '💧', text: 'Drink a glass of water' },
+            { emoji: '🌱', text: 'Try to touch some grass lil bro' },
+            { emoji: '✍️', text: 'Journal one thing you\'re grateful for' },
+        ];
+        // Pick 3 random alternatives
+        const picks = alternatives
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3);
+
+        showOverlay(`
+            <div class="intervention-icon">🔍</div>
+            <h2 class="intervention-title">What Could You Do Instead?</h2>
+            <p class="intervention-desc">
+                You've been browsing for <strong>${mins} min</strong>. Here are a few things you could do with your next few minutes:
+            </p>
+            <div style="text-align:left; margin:12px auto; max-width:320px;">
+                ${picks.map(p => `<div style="padding:8px 0; border-bottom:1px solid #f3f4f6; font-size:0.88rem;">
+                    <span style="margin-right:8px;">${p.emoji}</span> ${p.text}
+                </div>`).join('')}
+            </div>
+            <p class="intervention-desc" style="font-size:0.82rem; color:#6c5ce7;">
+                A gentle nudge to reflect on how you'd like to spend your time.
+            </p>
+            ${renderFeedbackButtons()}
+        `);
+    }
+
+    /**
      * Render usage stats section
      */
     function renderStats(riskData, sessionStats) {
@@ -208,7 +245,7 @@ const Interventions = (() => {
                     <span class="is-label">Risk Score</span>
                 </div>
                 <div class="intervention-stat">
-                    <span class="is-value">${riskData.zone}</span>
+                    <span class="is-value">${riskData.zone.replace('_', ' ')}</span>
                     <span class="is-label">Zone</span>
                 </div>
                 <div class="intervention-stat">
