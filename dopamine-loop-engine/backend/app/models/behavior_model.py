@@ -4,6 +4,7 @@ RandomForest classifier to detect NORMAL vs ADDICTIVE states.
 """
 
 import os
+from typing import Optional, Dict
 import numpy as np
 import pandas as pd
 import joblib
@@ -30,8 +31,9 @@ class BehaviorDetectionModel:
             "hour_of_day",
             "pause_ratio",
         ]
-        self.accuracy = 0.0
+        self.accuracy: Optional[float] = None
         self.is_trained = False
+        self._benchmark_summary: Optional[Dict] = None
 
     def train(self, force_retrain: bool = False) -> dict:
         """Train the model on synthetic data, or load existing model."""
@@ -41,7 +43,11 @@ class BehaviorDetectionModel:
             print("[MODEL] Loading existing model...")
             self.model = joblib.load(MODEL_PATH)
             self.is_trained = True
-            return {"status": "loaded", "model_path": MODEL_PATH}
+            # Evaluation metadata was not persisted with this joblib artifact.
+            # Accuracy is marked None (unavailable) rather than inventing unverified numbers.
+            self.accuracy = None
+            self.run_synthetic_benchmark()
+            return {"status": "loaded", "model_path": MODEL_PATH, "accuracy": None}
 
         print("[MODEL] Training new model on synthetic data...")
         X, y = generate_dataset(n_normal=750, n_addictive=750)
@@ -109,6 +115,20 @@ class BehaviorDetectionModel:
             col: round(float(imp), 4)
             for col, imp in zip(self.feature_columns, importances)
         }
+
+    def run_synthetic_benchmark(self) -> dict:
+        """
+        Run reproducible synthetic benchmark evaluation on the loaded model without retraining.
+        Preserves the disk artifact immutably.
+        """
+        from app.models.model_evaluator import evaluate_loaded_model
+        results = evaluate_loaded_model(self)
+        self._benchmark_summary = results
+        return results
+
+    def get_benchmark_summary(self) -> Optional[dict]:
+        """Return the synthetic benchmark summary if evaluated."""
+        return self._benchmark_summary
 
 
 # Singleton instance

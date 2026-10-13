@@ -4,7 +4,7 @@ Computes a 0-100 risk score from behavioral features.
 """
 
 import numpy as np
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 
 from app.data.feature_engine import (
     normalize_value,
@@ -43,10 +43,13 @@ class RiskScorer:
         self.alpha_up = 0.25   # Climbs fast (25% step)
         self.alpha_down = 0.05 # Decays slowly (5% step), simulating cognitive cool-off
 
-    def compute_score(self, features: Dict) -> Dict:
+    def compute_score(self, features: Dict, previous_score: Optional[float] = None) -> Dict:
         """
         Compute addiction risk score from extracted features with EMA smoothing.
-        
+
+        If previous_score is provided, calculates EMA relative to it without mutating
+        singleton state (session-isolated). Otherwise falls back to updating self.last_score.
+
         Returns dict with score, zone, color, and component breakdown.
         """
         # Normalize raw features to 0-1
@@ -74,12 +77,16 @@ class RiskScorer:
         instant_score = float(np.clip(raw_score * 100, 0, 100))
 
         # Apply Exponential Moving Average (EMA) to simulate dopamine buildup/cooldown
-        if instant_score > self.last_score:
-            self.last_score = self.last_score + self.alpha_up * (instant_score - self.last_score)
+        base_score = self.last_score if previous_score is None else previous_score
+        if instant_score > base_score:
+            computed_score = base_score + self.alpha_up * (instant_score - base_score)
         else:
-            self.last_score = self.last_score + self.alpha_down * (instant_score - self.last_score)
+            computed_score = base_score + self.alpha_down * (instant_score - base_score)
 
-        score = self.last_score
+        if previous_score is None:
+            self.last_score = computed_score
+
+        score = computed_score
 
         # Determine zone
         zone = self._get_zone(score)

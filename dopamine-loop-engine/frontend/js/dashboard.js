@@ -148,11 +148,13 @@ const Dashboard = (() => {
             `;
         }
 
-        // Show heuristic badge if placeholder
+        // Show heuristic badge if placeholder or not evidence-based
         if (badgeEl) {
-            if (insights.status === 'placeholder_heuristic') {
+            if (insights.status === 'placeholder_heuristic' || !insights.is_evidence_based) {
                 badgeEl.classList.remove('hidden');
                 badgeEl.textContent = 'Heuristic';
+                badgeEl.style.background = '';
+                badgeEl.style.color = '';
             } else if (insights.is_evidence_based) {
                 badgeEl.classList.remove('hidden');
                 badgeEl.textContent = 'Evidence-based';
@@ -164,9 +166,13 @@ const Dashboard = (() => {
         }
 
         // Disclaimer
-        if (disclaimerEl && insights.disclaimer) {
-            disclaimerEl.textContent = insights.disclaimer;
-            disclaimerEl.classList.remove('hidden');
+        if (disclaimerEl) {
+            if (insights.disclaimer) {
+                disclaimerEl.textContent = insights.disclaimer;
+                disclaimerEl.classList.remove('hidden');
+            } else {
+                disclaimerEl.classList.add('hidden');
+            }
         }
     }
 

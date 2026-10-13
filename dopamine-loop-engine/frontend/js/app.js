@@ -106,14 +106,14 @@
         Dashboard.syncGoalModeUI(mode);
 
         try {
-            const resp = await fetch(Config.apiUrl('/api/budget'), {
+            const resp = await fetch(Config.apiUrl('/api/budget/mode'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ goal_mode: mode }),
             });
             if (resp.ok) {
-                const budget = await resp.json();
-                Dashboard.updateBudgetSummary(budget);
+                const data = await resp.json();
+                Dashboard.updateBudgetSummary(data.budget || data);
             }
         } catch (e) {
             console.error('[GOAL_MODE]', e);
@@ -125,13 +125,14 @@
     let pollTimer = null;
 
     function startPolling() {
+        if (pollTimer) clearInterval(pollTimer);
         poll(); // Immediate first call
         pollTimer = setInterval(poll, 15000); // Then every 15s
     }
 
     async function poll() {
         try {
-            await Promise.all([fetchStats(), fetchHistory(), fetchBudget()]);
+            await Promise.all([fetchStats(), fetchHistory()]);
         } catch (e) {
             console.warn('[POLL] Error:', e);
         }
@@ -146,6 +147,9 @@
             Dashboard.updateRLStats(data.rl_agent);
             Dashboard.renderQTable(data.q_table);
             Dashboard.updateInsights(data.insights);
+            if (data.budget) {
+                Dashboard.updateBudgetSummary(data.budget);
+            }
         } catch (e) {
             console.warn('[STATS]', e);
         }
@@ -187,17 +191,6 @@
             }
         } catch (e) {
             console.warn('[HISTORY]', e);
-        }
-    }
-
-    async function fetchBudget() {
-        try {
-            const resp = await fetch(Config.apiUrl('/api/budget'));
-            if (!resp.ok) return;
-            const data = await resp.json();
-            Dashboard.updateBudgetSummary(data);
-        } catch (e) {
-            console.warn('[BUDGET]', e);
         }
     }
 

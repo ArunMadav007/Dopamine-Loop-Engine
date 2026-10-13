@@ -11,6 +11,42 @@ const Interventions = (() => {
     const overlay = document.getElementById('intervention-overlay');
     const content = document.getElementById('intervention-content');
 
+    // Exact hardcoded intervention messages (reused across popups and Moss companion)
+    const MESSAGES = {
+        grayscale: {
+            title: 'Grayscale Activated',
+            desc: 'Screen colors have been softened to reduce visual stimulation and help break the attention loop.',
+        },
+        delay: {
+            title: 'Pause Applied',
+            desc: 'A pause was added to slow the content loop. This micro-break helps your mind reset.',
+        },
+        awareness_popup: {
+            title: 'Awareness Check',
+            desc: "Hey! You've been browsing for a while. Consider a short break to reset your focus.",
+        },
+        blur_screen: {
+            title: 'Focus Break',
+            desc: 'Your screen has been softened to break the visual fixation loop. Take 3 deep breaths and look away from the screen.',
+        },
+        forced_break: {
+            title: 'Break Time',
+            desc: 'Your attention risk is elevated. A 30-second break is recommended to help you refocus.',
+        },
+        opportunity_cost: {
+            title: 'What Could You Do Instead?',
+            desc: 'A gentle nudge to reflect on how you\'d like to spend your time.',
+        },
+    };
+
+    function getMessageForAction(action) {
+        return MESSAGES[action] || null;
+    }
+
+    function isActive() {
+        return currentIntervention !== null;
+    }
+
     /**
      * Trigger an intervention based on type
      */
@@ -19,6 +55,19 @@ const Interventions = (() => {
 
         currentIntervention = intervention;
         onFeedbackCallback = onFeedback;
+
+        // Trigger Moss companion with the exact hardcoded message for this intervention
+        if (typeof Moss !== 'undefined') {
+            const msg = getMessageForAction(intervention.action);
+            if (msg) {
+                Moss.speak(msg.desc, 'high');
+                Moss.hop();
+            } else {
+                // If action has no known message, handle safely without inventing one
+                Moss.setState('intervention');
+                Moss.hop();
+            }
+        }
 
         switch (intervention.action) {
             case 'grayscale':
@@ -40,6 +89,7 @@ const Interventions = (() => {
                 triggerOpportunityCost(riskData, sessionStats);
                 break;
             default:
+                console.warn('[INTERVENTION] Unknown action type:', intervention.action);
                 break;
         }
 
@@ -274,7 +324,10 @@ const Interventions = (() => {
 
     function showOverlay(html) {
         if (!overlay || !content) return;
-        content.innerHTML = html;
+        const mossHeader = (typeof Moss !== 'undefined' && Moss.buildSVG)
+            ? `<div class="moss-companion moss-intervention" style="width:52px; height:46px; margin:0 auto 10px;">${Moss.buildSVG()}</div>`
+            : '';
+        content.innerHTML = mossHeader + html;
         overlay.classList.remove('hidden');
     }
 
@@ -287,17 +340,21 @@ const Interventions = (() => {
             clearTimeout(interventionTimer);
             interventionTimer = null;
         }
+        currentIntervention = null;
     }
 
     /**
      * Submit user feedback on intervention
      */
     function submitFeedback(helpful) {
+        const action = currentIntervention ? currentIntervention.action : null;
         hideOverlay();
-        if (onFeedbackCallback && currentIntervention) {
-            onFeedbackCallback(currentIntervention.action, helpful);
+        if (typeof Moss !== 'undefined') {
+            Moss.setState(helpful ? 'encouraging' : 'idle');
         }
-        currentIntervention = null;
+        if (onFeedbackCallback && action) {
+            onFeedbackCallback(action, helpful);
+        }
     }
 
     /**
@@ -333,5 +390,7 @@ const Interventions = (() => {
         trigger,
         submitFeedback,
         hideOverlay,
+        isActive,
+        getMessageForAction,
     };
 })();

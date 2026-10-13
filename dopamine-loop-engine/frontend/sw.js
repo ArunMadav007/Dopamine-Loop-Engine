@@ -1,8 +1,14 @@
-const CACHE_NAME = 'dlde-v3';
+const CACHE_NAME = 'dlde-v7';
 const ASSETS = [
   '/',
   '/index.html',
+  '/manifest.json',
   '/css/style.css',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/assets/calm-hero.svg',
+  '/assets/calm-history.svg',
+  '/assets/calm-monitor.svg',
   '/js/config.js',
   '/js/charts.js',
   '/js/moss.js',
@@ -14,7 +20,16 @@ const ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(async (cache) => {
+      // Cache each asset individually so a single missing asset does not abort installation
+      await Promise.all(
+        ASSETS.map((url) =>
+          cache.add(url).catch((err) => {
+            console.warn(`[SW] Failed to cache ${url}:`, err);
+          })
+        )
+      );
+    })
   );
   self.skipWaiting();
 });
@@ -29,12 +44,38 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Network first for API calls, cache first for static assets
-  if (event.request.url.includes('/api/') || event.request.url.includes('/ws/')) {
-    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
-  } else {
-    event.respondWith(
-      caches.match(event.request).then((cached) => cached || fetch(event.request))
-    );
+  // Only handle GET requests
+  if (event.request.method !== 'GET') {
+    return;
   }
+
+  const url = event.request.url;
+
+  // Never cache API responses as static assets
+  if (url.includes('/api/') || url.includes('/ws/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // Cache-first strategy for static assets
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(event.request).then((response) => {
+        // Cache newly fetched static assets on successful 200 response
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+        }
+        return response;
+      });
+    }).catch(() => {
+      // Offline fallback for HTML navigation
+      if (event.request.headers.get('accept')?.includes('text/html')) {
+        return caches.match('/index.html') || caches.match('/');
+      }
+    })
+  );
 });

@@ -5,12 +5,15 @@ Generates realistic behavioral data for training the addiction detection model.
 
 import numpy as np
 import pandas as pd
-from typing import Tuple
+from typing import Tuple, Optional
 
 
-def generate_normal_behavior(n_samples: int = 750) -> pd.DataFrame:
+def generate_normal_behavior(
+    n_samples: int = 750, seed: Optional[int] = 42
+) -> pd.DataFrame:
     """Generate data representing normal, healthy usage patterns."""
-    np.random.seed(42)
+    if seed is not None:
+        np.random.seed(seed)
 
     data = {
         # Scroll speed: moderate, 200-800 px/sec
@@ -32,9 +35,12 @@ def generate_normal_behavior(n_samples: int = 750) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
-def generate_addictive_behavior(n_samples: int = 750) -> pd.DataFrame:
+def generate_addictive_behavior(
+    n_samples: int = 750, seed: Optional[int] = 123
+) -> pd.DataFrame:
     """Generate data representing addictive, compulsive usage patterns."""
-    np.random.seed(123)
+    if seed is not None:
+        np.random.seed(seed)
 
     data = {
         # Scroll speed: very high, rapid scrolling 800-2500 px/sec
@@ -62,13 +68,39 @@ def generate_addictive_behavior(n_samples: int = 750) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
-def generate_dataset(n_normal: int = 750, n_addictive: int = 750) -> Tuple[pd.DataFrame, pd.Series]:
-    """Generate complete synthetic dataset with both behavior types."""
-    normal = generate_normal_behavior(n_normal)
-    addictive = generate_addictive_behavior(n_addictive)
+def generate_dataset(
+    n_normal: int = 750,
+    n_addictive: int = 750,
+    seed_normal: Optional[int] = None,
+    seed_addictive: Optional[int] = None,
+    shuffle_seed: Optional[int] = None,
+    seed: Optional[int] = None,
+) -> Tuple[pd.DataFrame, pd.Series]:
+    """
+    Generate complete synthetic dataset with both behavior types.
+
+    Parameters:
+    - n_normal: Number of normal behavior samples.
+    - n_addictive: Number of addictive behavior samples.
+    - seed_normal: Optional seed for normal behavior generation.
+    - seed_addictive: Optional seed for addictive behavior generation.
+    - shuffle_seed: Optional random_state for shuffling.
+    - seed: Optional base seed to derive distinct seeds for holdout generation.
+    """
+    if seed is not None:
+        s_normal = seed if seed_normal is None else seed_normal
+        s_addictive = (seed + 100) if seed_addictive is None else seed_addictive
+        s_shuffle = seed if shuffle_seed is None else shuffle_seed
+    else:
+        s_normal = 42 if seed_normal is None else seed_normal
+        s_addictive = 123 if seed_addictive is None else seed_addictive
+        s_shuffle = 42 if shuffle_seed is None else shuffle_seed
+
+    normal = generate_normal_behavior(n_normal, seed=s_normal)
+    addictive = generate_addictive_behavior(n_addictive, seed=s_addictive)
 
     dataset = pd.concat([normal, addictive], ignore_index=True)
-    dataset = dataset.sample(frac=1, random_state=42).reset_index(drop=True)
+    dataset = dataset.sample(frac=1, random_state=s_shuffle).reset_index(drop=True)
 
     features = dataset.drop("label", axis=1)
     labels = dataset["label"]

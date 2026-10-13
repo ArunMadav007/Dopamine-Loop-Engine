@@ -13,6 +13,7 @@ const Monitor = (() => {
     let totalInterventions = 0;
     let lastRiskScore = 0;
     let interventionCooldown = false;
+    let lastInterventionEventId = null;
 
     // Reconnection state
     let reconnectAttempts = 0;
@@ -97,6 +98,12 @@ const Monitor = (() => {
             ws = null;
         }
 
+        lastInterventionEventId = null;
+        interventionCooldown = false;
+        if (typeof Moss !== 'undefined') {
+            Moss.setIdle();
+        }
+
         teardownRealTracking();
         updateLiveUI(false);
     }
@@ -149,6 +156,9 @@ const Monitor = (() => {
             ws.onclose = (event) => {
                 console.log('[WS] Disconnected, code:', event.code);
                 setConnectionStatus('disconnected');
+                if (typeof Moss !== 'undefined') {
+                    Moss.setIdle();
+                }
                 ws = null;
                 // Reconnect with exponential backoff
                 if (isRunning) {
@@ -210,15 +220,9 @@ const Monitor = (() => {
             Dashboard.updateBudgetSummary(budget);
         }
 
-        // Update Moss state based on risk
-        if (typeof Moss !== 'undefined') {
-            if (risk.score < 30) {
-                Moss.setState(intervention && intervention.action !== 'none' ? 'encouraging' : 'idle');
-            } else if (risk.score < 70) {
-                Moss.setState('observing');
-            } else {
-                Moss.setState('intervention');
-            }
+        // Update Moss state during normal monitoring (only when no intervention is active)
+        if (typeof Moss !== 'undefined' && (!Interventions || !Interventions.isActive())) {
+            Moss.setRisk(risk.score);
         }
 
         const sessionTime = (Date.now() - (sessionStartTime || Date.now())) / 1000;
@@ -237,9 +241,19 @@ const Monitor = (() => {
         // Update session time on monitor page
         setText('live-session-time', formatDuration(sessionTime));
 
-        // Intervention logic
+        // Intervention logic — trigger only on genuinely new intervention events
         const threshold = parseInt(document.getElementById('setting-threshold')?.value || 50);
-        if (intervention && intervention.action !== 'none' && risk.score >= threshold && !interventionCooldown) {
+        const eventId = response.timestamp || `${intervention?.action}_${session_stats?.total_interventions || 0}`;
+        const isNewEvent = eventId !== lastInterventionEventId;
+        const canTrigger = intervention &&
+                           intervention.action !== 'none' &&
+                           risk.score >= threshold &&
+                           !interventionCooldown &&
+                           (!Interventions || !Interventions.isActive()) &&
+                           isNewEvent;
+
+        if (canTrigger) {
+            lastInterventionEventId = eventId;
             totalInterventions++;
             addLogEntry(intervention, risk.score, risk.zone);
 
@@ -492,9 +506,9 @@ const Monitor = (() => {
             }
         }
 
-        // Set Moss to resting when stopped
+        // Set Moss to idle when stopped
         if (typeof Moss !== 'undefined') {
-            Moss.setState(running ? 'idle' : 'resting');
+            Moss.setIdle();
         }
     }
 

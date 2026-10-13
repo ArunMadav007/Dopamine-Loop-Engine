@@ -1598,3 +1598,150 @@ body.blur-mode { filter: blur(5px) !important; }
 }
 
 button, select, input { font-family: inherit; }
+
+/* ══════════════════════════════════════════════
+   Moss Companion Character Styles
+   Layered inline SVG with CSS/JS facial parts
+   ══════════════════════════════════════════════ */
+.moss {
+    --moss-motion-duration: 380ms;
+    position: relative;
+    width: min(100%, 240px);
+    aspect-ratio: 1;
+    margin-inline: auto;
+    display: grid;
+    place-items: center;
+    transform-origin: 50% 85%;
+    isolation: isolate;
+}
+
+.moss__svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.moss__body,
+.moss__pupil,
+.moss__eyelid,
+.moss__brow,
+.moss__mouth,
+.moss__sprout {
+    transform-box: fill-box;
+    transition:
+        transform var(--moss-motion-duration) ease,
+        opacity var(--moss-motion-duration) ease;
+}
+
+.moss__eye {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.moss__pupil {
+    transform-origin: center;
+}
+
+.moss__eyelid {
+    opacity: 0;
+    transform: translateY(-24px);
+}
+
+.moss__mouth {
+    transform-origin: center;
+}
+
+/* Calm, supportive states. Same SVG; CSS classes change facial parts. */
+.moss--low .moss__brow {
+    transform: translateY(2px);
+}
+.moss--low .moss__cheek {
+    opacity: .45;
+}
+
+.moss--moderate .moss__brow--left {
+    transform: translateY(-2px) rotate(-3deg);
+}
+.moss--moderate .moss__brow--right {
+    transform: translateY(-2px) rotate(3deg);
+}
+
+.moss--high .moss__brow--left {
+    transform: translateY(3px) rotate(9deg);
+}
+.moss--high .moss__brow--right {
+    transform: translateY(3px) rotate(-9deg);
+}
+.moss--high .moss__cheek {
+    opacity: .2;
+}
+
+/* Idle is neutral resting state */
+.moss--idle .moss__brow {
+    transform: translateY(0) rotate(0deg);
+}
+
+/* Blinking state */
+.moss--blinking .moss__eye-white,
+.moss--blinking .moss__pupil {
+    transform: scaleY(.08);
+    transform-origin: center;
+}
+.moss--blinking .moss__eyelid {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Intervention reaction (one-shot hop) */
+.moss--intervening {
+    animation: moss-hop 520ms cubic-bezier(.2,.8,.25,1);
+}
+.moss__shadow {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 260ms ease, opacity 260ms ease;
+}
+.moss--intervening .moss__shadow {
+    transform: scaleX(.78);
+    opacity: .12;
+}
+
+@keyframes moss-breathe {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+@keyframes moss-sprout-sway {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(3deg); }
+}
+@keyframes moss-hop {
+    0% { transform: translateY(0) scale(1); }
+    32% { transform: translateY(-20px) scale(1.015); }
+    62% { transform: translateY(0) scale(.99); }
+    82% { transform: translateY(-4px); }
+    100% { transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .moss:not(.moss--intervening) .moss__svg {
+        animation: moss-breathe 4.2s ease-in-out infinite;
+    }
+    .moss__sprout {
+        animation: moss-sprout-sway 4.8s ease-in-out infinite;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .moss, .moss *, .moss__svg, .moss__sprout {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* Header widget / mini avatar sizing compatibility */
+.moss-header-widget .moss,
+.moss-says-avatar .moss {
+    width: 48px;
+    height: 48px;
+}
+

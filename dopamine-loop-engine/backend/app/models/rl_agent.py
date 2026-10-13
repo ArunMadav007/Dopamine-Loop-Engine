@@ -6,6 +6,7 @@ Q-Learning agent that learns optimal interventions for each user state.
 import os
 import json
 import random
+import copy
 import numpy as np
 from typing import Dict, List, Tuple, Optional
 
@@ -78,13 +79,35 @@ class RLInterventionAgent:
         alpha: float = 0.1,
         gamma: float = 0.9,
         epsilon: float = 0.15,
+        initial_q_table: Optional[Dict[str, Dict[str, float]]] = None,
+        max_history: int = 100,
+        is_read_only: bool = False,
     ):
         self.alpha = alpha        # Learning rate
         self.gamma = gamma        # Discount factor
         self.epsilon = epsilon    # Exploration rate
-        self.q_table: Dict[str, Dict[str, float]] = {}
+        self.max_history = max_history
+        self.is_read_only = is_read_only
         self.history: List[Dict] = []
-        self._initialize_q_table()
+        self.q_table: Dict[str, Dict[str, float]] = {}
+        if initial_q_table is not None:
+            self.q_table = copy.deepcopy(initial_q_table)
+        else:
+            self._initialize_q_table()
+
+    def create_personalized_copy(self) -> "RLInterventionAgent":
+        """
+        Create an isolated, personalized RL agent seeded from this policy.
+        Mutations on the returned agent do not affect this baseline instance.
+        """
+        return RLInterventionAgent(
+            alpha=self.alpha,
+            gamma=self.gamma,
+            epsilon=self.epsilon,
+            initial_q_table=copy.deepcopy(self.q_table),
+            max_history=self.max_history,
+            is_read_only=False,
+        )
 
     def _initialize_q_table(self):
         """Initialize Q-table with smart defaults."""
@@ -199,6 +222,12 @@ class RLInterventionAgent:
         
         Q(s,a) = Q(s,a) + α * (reward + γ * max(Q(s',a')) - Q(s,a))
         """
+        if self.is_read_only:
+            return {
+                "status": "read_only_baseline",
+                "message": "Baseline policy is read-only; updates must target per-session agent",
+            }
+
         if action not in self.ACTIONS:
             return {"status": "invalid_action"}
 
@@ -220,7 +249,7 @@ class RLInterventionAgent:
             self.q_table[state_key] = {}
         self.q_table[state_key][action] = new_q
 
-        # Record history
+        # Record history with capacity bound
         self.history.append({
             "state": state_key,
             "action": action,
@@ -228,6 +257,8 @@ class RLInterventionAgent:
             "old_q": round(current_q, 4),
             "new_q": round(new_q, 4),
         })
+        if len(self.history) > self.max_history:
+            self.history.pop(0)
 
         # Decay epsilon slightly (reduce exploration over time)
         self.epsilon = max(0.05, self.epsilon * 0.995)
@@ -255,7 +286,9 @@ class RLInterventionAgent:
         return summary
 
     def save(self):
-        """Save Q-table to disk."""
+        """Save Q-table to disk. Disabled when agent is in read-only baseline mode."""
+        if self.is_read_only:
+            return
         os.makedirs(QTABLE_DIR, exist_ok=True)
         data = {
             "q_table": self.q_table,
@@ -293,5 +326,5 @@ class RLInterventionAgent:
         }
 
 
-# Singleton instance
-rl_agent = RLInterventionAgent()
+# Singleton baseline instance (read-only baseline policy)
+rl_agent = RLInterventionAgent(is_read_only=True)
